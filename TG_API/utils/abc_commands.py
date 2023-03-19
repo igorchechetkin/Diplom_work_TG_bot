@@ -7,7 +7,7 @@ from telegram.ext import (
     MessageHandler
 )
 
-from common.settings import BotSettings
+from common_settings.settings import BotSettings
 from core import RequestsInterface
 
 

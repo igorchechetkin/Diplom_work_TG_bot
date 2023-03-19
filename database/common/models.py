@@ -3,7 +3,7 @@ from datetime import datetime
 import peewee as pw
 
 
-db = pw.SqliteDatabase("users_requests_history.db")
+db = pw.SqliteDatabase("..\\users_requests_history.db")
 
 
 class ModelBase(pw.Model):
@@ -25,5 +25,5 @@ class TeamsHistory(ModelBase):
     full_name = pw.TextField()
 
 
-#TODO Можно ли класс хистори создать из одной точки (датакласс).
-#TODO дока пиви (динамическое создание полей)
+# Можно ли класс хистори создать из одной точки (датакласс).
+# Дока пиви (динамическое создание полей)
