@@ -1,0 +1,9 @@
+certifi==2022.9.24
+charset-normalizer==2.1.1
+peewee==3.15.4
+pydantic==1.10.2
+python-dotenv==0.21.0
+python-telegram-bot==20.1
+requests==2.28.1
+typing-extensions==4.4.0
+urllib3==1.26.14
