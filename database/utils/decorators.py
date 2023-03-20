@@ -16,7 +16,7 @@ class CRUDParameters():
         self.args = *args,
 
     def __call__(self, object: CRFactory) -> Callable:
-        return object.handle(self.command, self.db, self.model, self.args)
+        return object.handle(self.command, self.db, self.model, *self.args)
 
 
 if __name__ == "__main__":
