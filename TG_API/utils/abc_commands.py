@@ -1,3 +1,5 @@
+import logging
+
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -8,11 +10,11 @@ from telegram.ext import (
 )
 
 from common_settings.settings import BotSettings
-from database.core import DBRetrievePlayers
-
+from database.core import DBFactory
+from logger.core import logged
 
 bot_settings = BotSettings()
-players_data = DBRetrievePlayers
+players_data = DBFactory()
 # teams_response = RequestsInterface.teams_request()
 
 
@@ -27,12 +29,14 @@ class StartCommand():
 
 class MinimumCommand():
 
-    players_data: DBRetrievePlayers
+    @logged
     async def minimum_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-        data = [f"{retrieve.id} {retrieve.first_name} {retrieve.last_name}" for retrieve in players_data]
-        update_data = "\n".join(data)
+        logging.info("Пользователем выбрана команда сбора данных об игроках")
 
+        retrieved_data = players_data.handle("db_players")
+        data = [f"{retrieve.id} {retrieve.first_name} {retrieve.last_name}" for retrieve in retrieved_data]
+        update_data = "\n".join(data)
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Ты выбрал(a) команду показа 25ти игроков лиги! Наслаждайся:\n"
                                             f" id   Имя   Фамилия\n-------------------------------\n"

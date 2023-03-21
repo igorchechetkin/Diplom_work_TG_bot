@@ -22,6 +22,27 @@ class DBStorePlayers(CRFactory):
 @db_request("retrieve", db, PlayersHistory, PlayersHistory.id, PlayersHistory.first_name, PlayersHistory.last_name)
 class DBRetrievePlayers(CRFactory):
     pass
+
+
+class DBFactory():
+
+    STORED = {
+        "db_players": DBStorePlayers
+    }
+
+    RETRIEVED = {
+        "db_players": DBRetrievePlayers
+    }
+
+    @classmethod
+    def handle(cls, command: str):
+
+        cls.STORED.get(command)
+
+        data = cls.RETRIEVED.get(command)
+
+        if data:
+            return data
 #
 # class RequestsInterface():
 #
@@ -48,5 +69,4 @@ class DBRetrievePlayers(CRFactory):
 #
 if __name__ == "__main__":
 
-    DBStorePlayers()
-    DBRetrievePlayers
+    DBFactory()
