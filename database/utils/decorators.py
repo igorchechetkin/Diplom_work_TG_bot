@@ -1,7 +1,6 @@
-from typing import Any, Callable, TypeVar
+from typing import Callable, TypeVar
 
 from database.utils.CRUD import CRFactory
-# from database.core import crud
 from database.common.models import db
 
 

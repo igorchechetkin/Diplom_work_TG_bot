@@ -1,25 +1,19 @@
 import logging
+from typing import Callable
 
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (
-    ApplicationBuilder,
-    ContextTypes,
-    CommandHandler,
-    filters,
-    MessageHandler
-)
+from telegram.ext import ContextTypes
 
-from common_settings.settings import BotSettings
 from database.core import DBFactory
 from logger.core import logged
 
-bot_settings = BotSettings()
+
 database_request = DBFactory()
 
 
 class StartCommand():
 
-    async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_name = update.message.from_user.first_name
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{user_name}, тебя приветствует бот "
                                                                               f"поиска информации баскетбольной"
@@ -29,7 +23,7 @@ class StartCommand():
 class MinimumCommand():
 
     @logged
-    async def minimum_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logging.info("Пользователем выбрана команда сбора данных об игроках")
 
@@ -45,7 +39,7 @@ class MinimumCommand():
 
 class MaximumCommand():
     @logged
-    async def maximum_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logging.info("Пользователем выбрана команда сбора данных о командах")
 
@@ -61,7 +55,7 @@ class MaximumCommand():
 
 class HistoryCommand():
     @logged
-    async def history_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logging.info("Пользователем выбрана команда просмотра истории запросов")
 
@@ -70,23 +64,24 @@ class HistoryCommand():
 
 class HelpCommand():
     @logged
-    async def help_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logging.info("Пользователем выбрана команда просмотра истории запросов")
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Я умею выполнять следующие команды:\n"
-                                            f"/start    - запускаем бота\n"
-                                            f"/low      - минимум\n"
-                                            f"/high     - максимум\n"
-                                            f"/history  - история запросов\n"
-                                            f"/help     - помощь")
+                                            f"/start      - запускаем бота\n"
+                                            f"/low        - минимум\n"
+                                            f"/high       - максимум\n"
+                                            f"/history    - история запросов\n"
+                                            f"/help       - помощь"
+                                       )
 
 
 class UnknownCommand():
 
     @logged
-    async def unknown_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logging.info("Пользователь ввел неизвестную команду")
 
@@ -95,28 +90,26 @@ class UnknownCommand():
                                             "или воспользуйтесь командой /help")
 
 
-class BotStart():
+class CommandFactory():
 
-    token = bot_settings.token.get_secret_value()
-    application = ApplicationBuilder().token(token).build()
+    COMMANDS = {
+        "start": StartCommand,
+        "minimum": MinimumCommand,
+        "maximum": MaximumCommand,
+        "history": HistoryCommand,
+        "help": HelpCommand,
+        "unknown": UnknownCommand
+    }
 
-    def bot_start(self):
-        start_handler = CommandHandler("start", StartCommand.start_callback)
-        low_handler = CommandHandler("low", MinimumCommand.minimum_callback)
-        high_handler = CommandHandler("high", MaximumCommand.maximum_callback)
-        history_handler = CommandHandler("history", HistoryCommand.history_callback)
-        help_handler = CommandHandler("help", HelpCommand.help_callback)
-        unknown_handler = MessageHandler(filters.COMMAND, UnknownCommand.unknown_callback)
+    @classmethod
+    def handle(cls, command: str) -> Callable:
 
-        self.application.add_handler(start_handler)
-        self.application.add_handler(low_handler)
-        self.application.add_handler(high_handler)
-        self.application.add_handler(history_handler)
-        self.application.add_handler(help_handler)
-        self.application.add_handler(unknown_handler)
-        self.application.run_polling()
+        bot_command = cls.COMMANDS.get(command)
+
+        if bot_command:
+            return bot_command
 
 
 if __name__ == "__main__":
 
-    BotStart()
+    CommandFactory()
